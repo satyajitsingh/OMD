@@ -1,0 +1,48 @@
+version: "3.8"
+services:
+  openmetadata:
+    image: openmetadata/server:latest
+    container_name: openmetadata
+    ports:
+      - "8585:8585"
+    environment:
+      - DATABASE_HOST=openmetadata-db
+      - DATABASE_PORT=5432
+      - DATABASE_DRIVER=postgres
+      - DATABASE_URL=jdbc:postgresql://openmetadata-db:5432/openmetadata_db
+      - DATABASE_USER=admin
+      - DATABASE_PASSWORD=admin123
+    depends_on:
+      - openmetadata-db
+
+  openmetadata-db:
+    image: postgres:13
+    container_name: openmetadata-db
+    restart: always
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin123
+      - POSTGRES_DB=openmetadata_db
+    ports:
+      - "5432:5432"
+    
+
+  minio:
+    image: minio/minio
+    container_name: openmetadata-minio
+    environment:
+      - MINIO_ROOT_USER=admin
+      - MINIO_ROOT_PASSWORD=admin123
+    ports:
+      - "9000:9000"
+    command: server /data
+
+  filewatcher:
+    image: python:3.9
+    container_name: filewatcher
+    volumes:
+      - ./watched_folder:/watched_folder
+      - ./upload_script.py:/upload_script.py
+    command: ["python", "/upload_script.py"]
+    depends_on:
+      - minio

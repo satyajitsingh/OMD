@@ -1,0 +1,14 @@
+source:
+  type: postgres
+  config:
+    username: postgres
+    password: postgres
+    database: my_database
+    host: my-postgres
+    port: 5432
+    serviceName: my_postgres_service
+
+sink:
+  type: metadata-rest
+  config:
+    api_endpoint: http://localhost:8585/api
